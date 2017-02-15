@@ -48,8 +48,13 @@
   <ItemGroup>
      <Compile Include="Assets\MarkerMovementScript.cs" />
      <Compile Include="Assets\PlayerMovementScript.cs" />
+     <Compile Include="Assets\Scripts\Agent.cs" />
      <Compile Include="Assets\Scripts\BoardManager.cs" />
+     <Compile Include="Assets\Scripts\Cell.cs" />
      <Compile Include="Assets\Scripts\Constants.cs" />
+     <Compile Include="Assets\Scripts\GroundCell.cs" />
+     <Compile Include="Assets\Scripts\PlayerAgent.cs" />
+     <Compile Include="Assets\Scripts\TurnManager.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>E:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
