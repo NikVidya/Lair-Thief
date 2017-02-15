@@ -1,0 +1,21 @@
+fileFormatVersion: 2
+guid: 0548423d3296ac1459af5b3db7b45e3f
+timeCreated: 1487129492
+licenseType: Free
+TrueTypeFontImporter:
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Almendra Display
+  fontNames:
+  - Almendra Display
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
