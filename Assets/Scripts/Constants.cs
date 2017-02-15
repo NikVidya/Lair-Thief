@@ -1,8 +1,5 @@
 ﻿public static class Constants {
 	public static class Board {
-		public static class Enums {
-			public static int GROUND_CELL = 0;
-			public static int WALL_CELL = 1;
-		}
+		public static string ROCK_PREFAB_PATH = "BoardCells/rock";
 	}
 }

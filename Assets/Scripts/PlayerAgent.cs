@@ -47,14 +47,14 @@ public class PlayerAgent : Agent {
 
 	protected override void OnTurnStart() {
 		Debug.Log ("Player turn: Start");
-		avatar.transform.position = board.CellToWorldPos (cellPosX, cellPosY);
+		avatar.transform.position = board.CellToWorld (cellPosX, cellPosY);
 		avatar.transform.localScale = new Vector2(board.cellScale, board.cellScale);
 		// Show the user what cells the player can move to
 		for (int x = cellPosX - 1; x <= cellPosX + 1; x++) {
 			for (int y = cellPosY; y < cellPosY + 3; y++) {
 				if (IsInMovementPattern (x - cellPosX, y - cellPosY, NORMAL_MOVEMENT_REGION) && board.IsTraversable(x, y) ) {
 					GameObject highlight = (GameObject)Instantiate (movableHighlighter, transform);
-					highlight.transform.position = board.CellToWorldPos (x, y);
+					highlight.transform.position = board.CellToWorld (x, y);
 					highlight.transform.localScale = new Vector2 (board.cellScale, board.cellScale);
 					highlights.Add (highlight);
 				}
@@ -64,12 +64,12 @@ public class PlayerAgent : Agent {
 
 	protected override void OnTurnUpdate() {
 		if (Input.GetMouseButtonDown (0)) {
-			int[] clickCell = board.WorldToCellPos (Input.mousePosition.x, Input.mousePosition.y);
+			int[] clickCell = board.WorldToCell (Camera.main.ScreenToWorldPoint(Input.mousePosition));
 			if (IsInMovementPattern (clickCell [0] - cellPosX, clickCell [1] - cellPosY, NORMAL_MOVEMENT_REGION) && board.IsTraversable (clickCell [0], clickCell [1])) {
 				if (moveCoroutine != null) {
 					StopCoroutine (moveCoroutine);
 				}
-				moveCoroutine = MoveAvatarTo (board.CellToWorldPos (clickCell [0], clickCell [1]), 1f);
+				moveCoroutine = MoveAvatarTo (board.CellToWorld (clickCell [0], clickCell [1]), 1f);
 				StartCoroutine (moveCoroutine);
 				targetCellX = clickCell [0];
 				targetCellY = clickCell [1];

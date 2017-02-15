@@ -4,65 +4,69 @@ using UnityEngine;
 
 public class BoardManager : MonoBehaviour {
 
-	public int initialHeight = 8;
-	public int columnCount = 5;
+	// --~~== Prefab Settings ==~~--
+	public int columns = 7;			// # of columns on the screen - Board can't be wider
+	public int visibleRows = 6;		// # of rows on the screen - Board *can* extend beyond this - Limits where the player can reach
+	public int rowOffset = 3;		// # of rows from the bottom to offset the board - make room for the monster
+	// -----------------------------
 
-	public Cell[] cellTypes;
+	public float cellScale { get; private set; } // Scaling factor for cell GameObjects
 
-	public float cellScale { get; private set; }
+	private List<Cell> board = new List<Cell>(); // The actual data for the board
 
-	private List<Cell>[] board_data; // An array of Queues of Prefabs. The prefabs should be the cells
-	private int maxReachableHeight = 8;
+	private int boardHeight = 0; // The highest y value of cells inserted into the grid
 
-	// Returns whether or not the position is traversable
+	// --~~== API Functions ==~~--
+
 	public bool IsTraversable(int x, int y){
-		if (x < 0 || x >= columnCount || y < 0 || y >= maxReachableHeight) {
-			return false;
-		} else {
-			return board_data [x] [y].IsPlayerTraversable ();
-		}
-	}
-
-	public void UpdateCellPositions(){
-		for (int i = 0; i < columnCount; i++) {
-			for (int j = 0; j < initialHeight; j++) {
-				Cell cell = board_data [i] [j];
-				cell.transform.position = new Vector2 (i * cellScale, j * cellScale);
-				cell.transform.localScale = new Vector2 (cellScale, cellScale);
+		// A bit of an ugly solution here. Iterate through cells on the board looking for one that's at this location
+		for(int i=0; i<board.Count; i++){
+			if (board[i].x == x && board[i].y == y) {
+				return board [i].IsTraversable ();
 			}
 		}
+		// Loop would have terminated if a cell was found, so
+		return true; // There was no cell in the list at that location. Assume that the player can move there.
 	}
 
-	public Vector2 CellToWorldPos(int x, int y){
+	public Vector2 CellToWorld(int x, int y){
 		return new Vector2 (x * cellScale, y * cellScale);
 	}
 
-	public int[] WorldToCellPos(float pixX, float pixY){
-		Vector3 worldPos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-		return new int[2] { (int)Mathf.Floor (worldPos.x / cellScale), (int)Mathf.Floor (worldPos.y / cellScale) };
+	public int[] WorldToCell(Vector3 pos){
+		return new int[2] { Mathf.FloorToInt (pos.x / cellScale), Mathf.FloorToInt (pos.y / cellScale) };
 	}
 
-	// Use this for initialization
-	void Start () {
-		// Initialize the board
-		cellScale = (Camera.main.orthographicSize * 2.0f * Camera.main.aspect) / (float)columnCount;
-
-		maxReachableHeight = (int)Mathf.Floor( (float) ( (Camera.main.orthographicSize * 2.0f) / cellScale) );
-
-		board_data = new List<Cell>[columnCount];
-		for (int i = 0; i < columnCount; i++) {
-			board_data [i] = new List<Cell> ();
-			for (int j = 0; j < initialHeight; j++) {
-				Cell cell = (Cell) Instantiate (cellTypes[Constants.Board.Enums.GROUND_CELL], transform);
-				cell.transform.position = new Vector2 (i * cellScale, j * cellScale);
-				cell.transform.localScale = new Vector2 (cellScale, cellScale);
-				board_data[i].Add(cell);
+	public void PushCellPattern(List<Cell.CellType>[] pattern){
+		int heightAdd = 0;
+		for (int x = 0; x < pattern.Length; x++) {
+			int rowHeight = 0;
+			for (int y = 0; y < pattern[x].Count; y++) {
+				if (pattern[x][y] != Cell.CellType.NONE) {
+					GameObject viz = Instantiate (Resources.Load (Cell.GetResourcePath (pattern [x][y]), typeof(GameObject))) as GameObject;
+					viz.transform.localScale = new Vector3 (cellScale, cellScale, cellScale);
+					Cell toPush = new Cell (x, boardHeight + y, pattern [x][y], viz, CellToWorld (x, boardHeight + y));
+					board.Add (toPush);
+				}
+				rowHeight++;
+			}
+			if (rowHeight > heightAdd) {
+				heightAdd = rowHeight;
 			}
 		}
+		boardHeight += heightAdd;
 	}
 
-	// Update is called once per frame
-	void Update () {
-		
+	public bool NeedsRow(int buffer){
+		return boardHeight < (visibleRows + buffer);
+	}
+
+	// --~~== End API Functions ==~~--
+
+	// --~~== START ==~~--
+	public void Start(){
+		// Initialize board parameters
+		cellScale = (Camera.main.orthographicSize * 2.0f * Camera.main.aspect) / (float)columns; // Base the cell scale off of the horizontal resoulution of the camera, and the number of columns
+		visibleRows = Mathf.CeilToInt( (Camera.main.orthographicSize * 2.0f) / cellScale) - rowOffset; // Determine how many rows are visible to the player. (Max rows visible - offset)
 	}
 }
