@@ -15,10 +15,11 @@ public class PlayerMovementScript : MonoBehaviour {
         if (Input.GetAxisRaw("Submit") != 0)
         {
             //move the player to the x value of the target, then the y value
-            while (transform.position.x != target.position.x)
-            {
-                transform.position = Vector2.MoveTowards(new Vector2(transform.position.x, transform.position.y), new Vector2(target.position.x, transform.position.y), Time.deltaTime * 1);
-            }
+            //while (transform.position.x != target.position.x)
+            //{
+                //transform.position = Vector2.MoveTowards(new Vector2(transform.position.x, transform.position.y), new Vector2(target.position.x, transform.position.y), Time.deltaTime * 1);
+				transform.position = Vector2.Lerp(transform.position, new Vector2(target.transform.position.x, target.transform.position.y), Time.deltaTime);
+			//}
         }
     }
 }
