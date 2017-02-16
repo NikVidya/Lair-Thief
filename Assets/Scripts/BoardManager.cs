@@ -15,11 +15,11 @@ public class BoardManager : MonoBehaviour {
 	// -----------------------------
 
 	public float cellScale { get; private set; } // Scaling factor for cell GameObjects
+	public int boardHeight { get; private set; } // The highest y value of cells inserted into the grid
 
 	private List<Cell> board = new List<Cell>(); // The actual data for the board
 	private List<BoardPiece> pieces = new List<BoardPiece>();
 
-	private int boardHeight = 0; // The highest y value of cells inserted into the grid
 
 	private IEnumerator moveCoroutine = null; // The coroutine used to animate the camera
 
@@ -122,6 +122,34 @@ public class BoardManager : MonoBehaviour {
 
 	public void RegisterPiece(BoardPiece piece){
 		pieces.Add (piece);
+	}
+		
+	public Cell GetCell(int x, int y){
+		// We don't have a locational mapping for pieces, so iteration it is!
+		for (int i = 0; i < board.Count; i++) {
+			if (board [i].x == x && board [i].y == y) {
+				return board [i];
+			}
+		}
+		return new Cell(x, y, Cell.CellType.NONE); // We didn't actually have a cell for that location, but here is one that represents what that data would be.
+	}
+
+	public Cell ChangeCell(int x, int y, Cell.CellType newType) {
+		Cell cellToChange = GetCell (x, y);
+		if (newType == Cell.CellType.NONE) { // We don't store references to this type. So delete whatever was there
+			GameObject.Destroy(cellToChange.viz);
+			board.Remove (cellToChange);
+			return new Cell(x, y, Cell.CellType.NONE); // We are done the dirty work
+		}
+		cellToChange.type = newType;
+		// Update the visuals
+		GameObject viz = Instantiate (Resources.Load (Cell.GetResourcePath (newType), typeof(GameObject))) as GameObject;
+		viz.transform.localScale = new Vector3 (cellScale, cellScale, cellScale);
+		viz.transform.position = CellToWorld (x, y);
+		GameObject.Destroy(cellToChange.viz); // Destroy the old viz
+		cellToChange.viz = viz;
+		// Return the cell
+		return cellToChange;
 	}
 
 	// --~~== End API Functions ==~~--

@@ -22,6 +22,12 @@ public class Cell {
 	public CellType type;
 	public GameObject viz;
 
+	public Cell(int x, int y, CellType type){
+		this.x = x;
+		this.y = y;
+		this.type = type;
+	}
+
 	// Cell position x and y. Type of cell
 	public Cell(int x, int y, CellType type, GameObject viz, Vector2 worldPos){
 		this.type = type;
@@ -32,7 +38,9 @@ public class Cell {
 	public void UpdateCellPos(int x, int y, Vector2 worldPos){
 		this.x = x;
 		this.y = y;
-		viz.transform.position = worldPos;
+		if (viz != null) {
+			viz.transform.position = worldPos;
+		}
 	}
 
 	public bool IsTraversable(){
