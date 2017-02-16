@@ -8,13 +8,20 @@ public class BoardManager : MonoBehaviour {
 	public int columns = 7;			// # of columns on the screen - Board can't be wider
 	public int visibleRows = 6;		// # of rows on the screen - Board *can* extend beyond this - Limits where the player can reach
 	public int rowOffset = 3;		// # of rows from the bottom to offset the board - make room for the monster
+
+	public GameObject cam; 		// The camera to move when showing the advancement of the board
+
+	public TurnManager turnManager; // The manager handling who's turn it is
 	// -----------------------------
 
 	public float cellScale { get; private set; } // Scaling factor for cell GameObjects
 
 	private List<Cell> board = new List<Cell>(); // The actual data for the board
+	private List<BoardPiece> pieces = new List<BoardPiece>();
 
 	private int boardHeight = 0; // The highest y value of cells inserted into the grid
+
+	private IEnumerator moveCoroutine = null; // The coroutine used to animate the camera
 
 	// --~~== API Functions ==~~--
 
@@ -59,6 +66,59 @@ public class BoardManager : MonoBehaviour {
 
 	public bool NeedsRow(int buffer){
 		return boardHeight < (visibleRows + buffer);
+	}
+
+	public void AdvanceBoard(int distance){
+		if (moveCoroutine != null) {
+			StopCoroutine (moveCoroutine);
+		}
+		moveCoroutine = AdvanceCamera (distance, 1f);
+		StartCoroutine (moveCoroutine);
+	}
+
+	IEnumerator AdvanceCamera(int distance, float moveTime)
+	{
+		float startTime = Time.time;
+
+		Vector3 target = cam.transform.position + (Vector3)CellToWorld(0, distance);
+
+		while ((cam.transform.position - target ).magnitude > 0.01f) {
+			float curTime = Time.time;
+			cam.transform.position = Vector3.Lerp (cam.transform.position, target, (curTime - startTime) / moveTime);
+
+			yield return null; // Yield control back to the rest of the engine so it can tick
+		}
+		UpdateBoardAfterAdvance (distance); // Actually trigger the board to move
+	}
+
+	// Does not animate!
+	public void UpdateBoardAfterAdvance(int distance){
+		// Reset the camera position
+		cam.transform.position = new Vector3 (3.75f, 5f, -10f);
+
+		// Update all Cell positions
+		for (int i = 0; i < board.Count; i++) {
+			Cell cell = board [i];
+			cell.UpdateCellPos (cell.x, cell.y - distance, CellToWorld (cell.x, cell.y - distance));
+			// Check if the piece fell off the board
+			if (cell.y < 0) {
+				GameObject.Destroy (cell.viz);
+				board.Remove (cell);
+			}
+		}
+		// Update the board height
+		boardHeight -= distance;
+
+		// Update all registered movers
+		for (int i = 0; i < pieces.Count; i++) {
+			pieces [i].HandleBoardAdvance (distance);
+		}
+
+		turnManager.EndCurrentTurn ();
+	}
+
+	public void RegisterPiece(BoardPiece piece){
+		pieces.Add (piece);
 	}
 
 	// --~~== End API Functions ==~~--

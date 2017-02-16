@@ -26,10 +26,10 @@ public class Cell {
 	public Cell(int x, int y, CellType type, GameObject viz, Vector2 worldPos){
 		this.type = type;
 		this.viz = viz;
-		updateCellPos (x, y, worldPos);
+		UpdateCellPos (x, y, worldPos);
 	}
 
-	public void updateCellPos(int x, int y, Vector2 worldPos){
+	public void UpdateCellPos(int x, int y, Vector2 worldPos){
 		this.x = x;
 		this.y = y;
 		viz.transform.position = worldPos;

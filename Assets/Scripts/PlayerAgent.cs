@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerAgent : Agent {
+public class PlayerAgent : Agent, BoardPiece {
 
 	public BoardManager board;
 
@@ -43,6 +43,7 @@ public class PlayerAgent : Agent {
 	};
 
 	public void Start(){
+		board.RegisterPiece (this);
 	}
 
 	protected override void OnTurnStart() {
@@ -105,5 +106,10 @@ public class PlayerAgent : Agent {
 			return false;
 		}
 		return movementPattern [offsetY , offsetX + 1];
+	}
+
+	public void HandleBoardAdvance(int distance){
+		cellPosY -= distance;
+		avatar.transform.position = board.CellToWorld (cellPosX, cellPosY);
 	}
 }

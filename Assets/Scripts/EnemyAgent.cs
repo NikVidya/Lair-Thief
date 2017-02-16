@@ -4,8 +4,10 @@ using UnityEngine;
 
 public class EnemyAgent : Agent {
 
+	public BoardManager board;
+
 	protected override void OnTurnStart(){
-		// Move the 
+		board.AdvanceBoard(1);
 	}
 
 	protected override void OnTurnUpdate(){
