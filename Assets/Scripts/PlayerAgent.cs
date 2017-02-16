@@ -20,6 +20,8 @@ public class PlayerAgent : Agent, BoardPiece {
 
 	private IEnumerator moveCoroutine = null;
 
+    private bool[,] movementRegion;
+
 	// DEFINE MOVABLE AREA PATTERNS - Hardcoded = bad, but I can't think of another way to define these with Unity
 	private static bool[,] NORMAL_MOVEMENT_REGION = new bool[4,3] {
 		{true,  true,  true },
@@ -50,10 +52,18 @@ public class PlayerAgent : Agent, BoardPiece {
 		Debug.Log ("Player turn: Start");
 		avatar.transform.position = board.CellToWorld (cellPosX, cellPosY);
 		avatar.transform.localScale = new Vector2(board.cellScale, board.cellScale);
+        if (IsEndangered())
+        {
+            movementRegion = ENDANGERED_MOVEMENT_REGION;
+        }
+        else
+        {
+            movementRegion = NORMAL_MOVEMENT_REGION;
+        }
 		// Show the user what cells the player can move to
 		for (int x = cellPosX - 1; x <= cellPosX + 1; x++) {
 			for (int y = cellPosY; y < cellPosY + 3; y++) {
-				if (IsInMovementPattern (x - cellPosX, y - cellPosY, NORMAL_MOVEMENT_REGION) && board.IsTraversable(x, y) ) {
+				if (IsInMovementPattern (x - cellPosX, y - cellPosY, movementRegion) && board.IsTraversable(x, y) ) {
 					GameObject highlight = (GameObject)Instantiate (movableHighlighter, transform);
 					highlight.transform.position = board.CellToWorld (x, y);
 					highlight.transform.localScale = new Vector2 (board.cellScale, board.cellScale);
@@ -64,9 +74,17 @@ public class PlayerAgent : Agent, BoardPiece {
 	}
 
 	protected override void OnTurnUpdate() {
-		if (Input.GetMouseButtonDown (0)) {
+        if (IsEndangered())
+        {
+            movementRegion = ENDANGERED_MOVEMENT_REGION;
+        }
+        else
+        {
+            movementRegion = NORMAL_MOVEMENT_REGION;
+        }
+        if (Input.GetMouseButtonDown (0)) {
 			int[] clickCell = board.WorldToCell (Camera.main.ScreenToWorldPoint(Input.mousePosition));
-			if (IsInMovementPattern (clickCell [0] - cellPosX, clickCell [1] - cellPosY, NORMAL_MOVEMENT_REGION) && board.IsTraversable (clickCell [0], clickCell [1])) {
+			if (IsInMovementPattern (clickCell [0] - cellPosX, clickCell [1] - cellPosY, movementRegion) && board.IsTraversable (clickCell [0], clickCell [1])) {
 				if (moveCoroutine != null) {
 					StopCoroutine (moveCoroutine);
 				}
@@ -107,6 +125,14 @@ public class PlayerAgent : Agent, BoardPiece {
 		}
 		return movementPattern [offsetY , offsetX + 1];
 	}
+    // tests if player is in danger zone
+    private bool IsEndangered()
+    {
+        if (cellPosY < 2) {
+            return true;
+        }
+        return false;
+    }
 
 	public void HandleBoardAdvance(int distance){
 		cellPosY -= distance;
