@@ -110,6 +110,7 @@ public class PlayerAgent : Agent, BoardPiece {
 
 	public void HandleBoardAdvance(int distance){
 		cellPosY -= distance;
+		targetCellY -= distance;
 		avatar.transform.position = board.CellToWorld (cellPosX, cellPosY);
 	}
 }

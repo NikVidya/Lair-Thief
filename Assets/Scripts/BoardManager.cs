@@ -23,6 +23,8 @@ public class BoardManager : MonoBehaviour {
 
 	private IEnumerator moveCoroutine = null; // The coroutine used to animate the camera
 
+	private Vector3 camOrigin; // The original position of the camera
+
 	// --~~== API Functions ==~~--
 
 	public bool IsTraversable(int x, int y){
@@ -94,7 +96,7 @@ public class BoardManager : MonoBehaviour {
 	// Does not animate!
 	public void UpdateBoardAfterAdvance(int distance){
 		// Reset the camera position
-		cam.transform.position = new Vector3 (3.75f, 5f, -10f);
+		cam.transform.position = camOrigin;
 
 		// Update all Cell positions
 		for (int i = 0; i < board.Count; i++) {
@@ -102,8 +104,9 @@ public class BoardManager : MonoBehaviour {
 			cell.UpdateCellPos (cell.x, cell.y - distance, CellToWorld (cell.x, cell.y - distance));
 			// Check if the piece fell off the board
 			if (cell.y < 0) {
-				GameObject.Destroy (cell.viz);
+				GameObject.DestroyImmediate (cell.viz);
 				board.Remove (cell);
+				i--; // Fix the index into the array because shits shifted
 			}
 		}
 		// Update the board height
@@ -126,7 +129,8 @@ public class BoardManager : MonoBehaviour {
 	// --~~== START ==~~--
 	public void Start(){
 		// Initialize board parameters
-		cellScale = (Camera.main.orthographicSize * 2.0f * Camera.main.aspect) / (float)columns; // Base the cell scale off of the horizontal resoulution of the camera, and the number of columns
+		cellScale = 1; //(Camera.main.orthographicSize * 2.0f * Camera.main.aspect) / (float)columns; // Base the cell scale off of the horizontal resoulution of the camera, and the number of columns
 		visibleRows = Mathf.CeilToInt( (Camera.main.orthographicSize * 2.0f) / cellScale) - rowOffset; // Determine how many rows are visible to the player. (Max rows visible - offset)
+		camOrigin = cam.transform.position;
 	}
 }
