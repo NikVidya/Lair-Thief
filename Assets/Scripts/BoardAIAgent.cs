@@ -136,15 +136,17 @@ public class BoardAIAgent : Agent {
 	}
 
 	private Cell.CellType ParseTypeFromInt(int typeInt){
-		switch (typeInt) {
-		case 0:
-			return Cell.CellType.NONE;
-		case 1:
-			return Cell.CellType.ROCK;
-        case 2:
-            return Cell.CellType.BOOST;
-		default:
-			return Cell.CellType.NONE;
+		    switch (typeInt) {
+		    case 0:
+			    return Cell.CellType.NONE;
+		    case 1:
+			    return Cell.CellType.ROCK;
+            case 2:
+                return Cell.CellType.BOOST;
+            case 3:
+                return Cell.CellType.FIST;
+		    default:
+			    return Cell.CellType.NONE;
 		}
 	}
 }

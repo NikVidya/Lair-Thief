@@ -14,4 +14,8 @@ public abstract class Powerup : MonoBehaviour {
     {
 
     }
+    public void Activate()
+    {
+
+    }
 }

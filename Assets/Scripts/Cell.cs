@@ -48,7 +48,9 @@ public class Cell {
 		    case CellType.ROCK:
                     return Constants.Board.ROCK_PREFAB_PATH;
             case CellType.BOOST:
-                    return Constants.Board.POWERUP_PREFAB_PATH;
+                    return Constants.Board.BOOST_POWERUP_PREFAB_PATH;
+            case CellType.FIST:
+                return Constants.Board.BREAKER_POWERUP_PREFAB_PATH;
 
 		}
 		return "";

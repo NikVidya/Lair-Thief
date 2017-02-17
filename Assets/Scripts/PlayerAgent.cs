@@ -20,6 +20,7 @@ public class PlayerAgent : Agent, BoardPiece {
 
     public Button boostButton; // The button the player click's to enable boosting
 
+    public Button breakButton; // Player clicks this to break the block ahead of them
     // -----------------------------------
 
 	private List<GameObject> highlights = new List<GameObject>();
@@ -207,6 +208,11 @@ public class PlayerAgent : Agent, BoardPiece {
         CanBoost = true;
         boostButton.interactable = true;
     }
+    public void EnableBreaking()
+    {
+        CanPunch = true;
+        breakButton.interactable = true;
+    }
 
     public void StartBoosting()
     {
@@ -217,6 +223,17 @@ public class PlayerAgent : Agent, BoardPiece {
             boostedTurnsRemaining = boostTurns;
             CanBoost = false; // Player consumed the boost item
             boostButton.interactable = false;
+            showMoveRegion();
+        }
+    }
+    public void BreakBlock()
+    {
+        if (CanPunch)
+        {
+            Debug.Log("Player just used Break Powerup and broke a block");
+            board.ChangeCell(cellPosX, cellPosY + 1, Cell.CellType.NONE);
+            CanPunch = false;
+            breakButton.interactable = false;
             showMoveRegion();
         }
     }
