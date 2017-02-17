@@ -141,6 +141,8 @@ public class BoardAIAgent : Agent {
 			return Cell.CellType.NONE;
 		case 1:
 			return Cell.CellType.ROCK;
+        case 2:
+            return Cell.CellType.NONE_BOOST;
 		default:
 			return Cell.CellType.NONE;
 		}

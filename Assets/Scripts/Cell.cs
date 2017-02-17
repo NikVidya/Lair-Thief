@@ -15,7 +15,8 @@ public class Cell {
 	}
 	public enum CellType {
 		NONE = CellFlags.PASSABLE, // Tiles of this type shouldn't be created. This is for specifying that in patterns
-		ROCK = CellFlags.IMPASSABLE
+		ROCK = CellFlags.IMPASSABLE,
+        NONE_BOOST = CellFlags.PASSABLE
 		// e.g. SAND = CellFlags.PASSABLE | CellFlags.SLOW
 	}
 
@@ -49,8 +50,11 @@ public class Cell {
 
 	public static string GetResourcePath(CellType type) {
 		switch (type) {
-		case CellType.ROCK:
-			return Constants.Board.ROCK_PREFAB_PATH;
+		    case CellType.ROCK:
+                    return Constants.Board.ROCK_PREFAB_PATH;
+            case CellType.NONE_BOOST:
+                    return Constants.Board.POWERUP_PREFAB_PATH;
+
 		}
 		return "";
 	}

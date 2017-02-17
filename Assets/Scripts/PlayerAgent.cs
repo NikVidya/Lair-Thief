@@ -22,6 +22,10 @@ public class PlayerAgent : Agent, BoardPiece {
 
     private bool[,] movementRegion;
 
+    public int danger;
+
+    public int boosted;
+
 	// DEFINE MOVABLE AREA PATTERNS - Hardcoded = bad, but I can't think of another way to define these with Unity
 	private static bool[,] NORMAL_MOVEMENT_REGION = new bool[4,3] {
 		{true,  true,  true },
@@ -44,7 +48,7 @@ public class PlayerAgent : Agent, BoardPiece {
 		{false, true, false}
 	};
 
-	public void Start(){
+    public void Start(){
 		board.RegisterPiece (this);
 	}
 
@@ -52,16 +56,9 @@ public class PlayerAgent : Agent, BoardPiece {
 		Debug.Log ("Player turn: Start");
 		avatar.transform.position = board.CellToWorld (cellPosX, cellPosY);
 		avatar.transform.localScale = new Vector2(board.cellScale, board.cellScale);
-        if (IsEndangered())
-        {
-            movementRegion = ENDANGERED_MOVEMENT_REGION;
-        }
-        else
-        {
-            movementRegion = NORMAL_MOVEMENT_REGION;
-        }
-		// Show the user what cells the player can move to
-		for (int x = cellPosX - 1; x <= cellPosX + 1; x++) {
+        movementRegion = CheckMovementRegion();
+        // Show the user what cells the player can move to
+        for (int x = cellPosX - 1; x <= cellPosX + 1; x++) {
 			for (int y = cellPosY; y < cellPosY + 3; y++) {
 				if (IsReachable (x - cellPosX, y - cellPosY, movementRegion) && board.IsTraversable(x, y) ) {
 					GameObject highlight = (GameObject)Instantiate (movableHighlighter, transform);
@@ -74,14 +71,7 @@ public class PlayerAgent : Agent, BoardPiece {
 	}
 
 	protected override void OnTurnUpdate() {
-        if (IsEndangered())
-        {
-            movementRegion = ENDANGERED_MOVEMENT_REGION;
-        }
-        else
-        {
-            movementRegion = NORMAL_MOVEMENT_REGION;
-        }
+        movementRegion = CheckMovementRegion();
         if (Input.GetMouseButtonDown (0)) {
 			int[] clickCell = board.WorldToCell (Camera.main.ScreenToWorldPoint(Input.mousePosition));
 			if (IsReachable (clickCell [0] - cellPosX, clickCell [1] - cellPosY, movementRegion) && board.IsTraversable (clickCell [0], clickCell [1])) {
@@ -106,6 +96,11 @@ public class PlayerAgent : Agent, BoardPiece {
 		// Update my actual position
 		cellPosX = targetCellX;
 		cellPosY = targetCellY;
+        // iterate boosted so that powerup can run out
+        if (boosted > 0)
+        {
+            boosted--;
+        }
 	}
 
 	IEnumerator MoveAvatarTo(Vector3 target, float moveTime)
@@ -147,15 +142,43 @@ public class PlayerAgent : Agent, BoardPiece {
 	}
 
     // tests if player is in danger zone
-    private bool IsEndangered()
+    public bool IsEndangered(int dangerZone)
     {
-        if (cellPosY < 2) {
+        if (cellPosY < dangerZone) {
             return true;
         }
         return false;
     }
+    // changes the movement region based on certain factors like isEndangered or boosted
+    public bool[,] CheckMovementRegion()
+    {
+        bool[,] region;
+        if (IsEndangered(danger))
+        {
+            if (boosted > 0)
+            {
+                region = BOOSTED_ENDANGERED_MOVEMENT_REGION;
+            }
+            else
+            {
+                region = ENDANGERED_MOVEMENT_REGION;
+            }
+        }
+        else
+        {
+            if (boosted > 0)
+            {
+                region = BOOSTED_MOVEMENT_REGION;
+            }
+            else
+            {
+                region = NORMAL_MOVEMENT_REGION;
+            }
+        }
+        return region;
+    }
 
-	public void HandleBoardAdvance(int distance){
+    public void HandleBoardAdvance(int distance){
 		cellPosY -= distance;
 		targetCellY -= distance;
 		avatar.transform.position = board.CellToWorld (cellPosX, cellPosY);
