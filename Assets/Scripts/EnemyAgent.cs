@@ -7,8 +7,10 @@ public class EnemyAgent : Agent {
 	public BoardManager board;
     public PlayerAgent player;
 
+    public int dangerDistance = 3; // The distance from the enemy to be considered endangered
+
     protected override void OnTurnStart(){
-        if (player.IsEndangered(player.danger) && Random.value < 0.5)
+        if (player.inDanger && Random.value < 0.5)
         {
             board.AdvanceBoard(2);
         }

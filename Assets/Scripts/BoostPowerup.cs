@@ -17,11 +17,15 @@ public class BoostPowerup : Powerup, BoardPiece {
 	}
     void OnTouch()
     {
-        // make sure to change this to add to inventory
-        player.boosted = 5;
-        // this powerup has to disappear
+        player.EnableBoosting(); // The player has obtained a boost item
+
+        // Remove the cell from the board
         board.ChangeCell(player.cellPosX, player.cellPosY, Cell.CellType.NONE);
-        
+    }
+
+    public void Activate()
+    {
+        player.StartBoosting();
     }
 
     public void HandleBoardAdvance(int distance)
