@@ -63,7 +63,7 @@ public class PlayerAgent : Agent, BoardPiece {
 		// Show the user what cells the player can move to
 		for (int x = cellPosX - 1; x <= cellPosX + 1; x++) {
 			for (int y = cellPosY; y < cellPosY + 3; y++) {
-				if (IsInMovementPattern (x - cellPosX, y - cellPosY, movementRegion) && board.IsTraversable(x, y) ) {
+				if (IsReachable (x - cellPosX, y - cellPosY, movementRegion) && board.IsTraversable(x, y) ) {
 					GameObject highlight = (GameObject)Instantiate (movableHighlighter, transform);
 					highlight.transform.position = board.CellToWorld (x, y);
 					highlight.transform.localScale = new Vector2 (board.cellScale, board.cellScale);
@@ -84,7 +84,7 @@ public class PlayerAgent : Agent, BoardPiece {
         }
         if (Input.GetMouseButtonDown (0)) {
 			int[] clickCell = board.WorldToCell (Camera.main.ScreenToWorldPoint(Input.mousePosition));
-			if (IsInMovementPattern (clickCell [0] - cellPosX, clickCell [1] - cellPosY, movementRegion) && board.IsTraversable (clickCell [0], clickCell [1])) {
+			if (IsReachable (clickCell [0] - cellPosX, clickCell [1] - cellPosY, movementRegion) && board.IsTraversable (clickCell [0], clickCell [1])) {
 				if (moveCoroutine != null) {
 					StopCoroutine (moveCoroutine);
 				}
@@ -123,8 +123,29 @@ public class PlayerAgent : Agent, BoardPiece {
 		if (offsetX < -1 || offsetX >= 2 || offsetY < 0 || offsetY >= 4) {
 			return false;
 		}
+
 		return movementPattern [offsetY , offsetX + 1];
 	}
+
+	private bool IsReachable(int offsetX, int offsetY, bool[,] movementPattern){
+		if (	IsInMovementPattern (offsetX, offsetY, movementPattern) 
+			&& 	cellPosX + offsetX >= 0 && cellPosX + offsetX < board.columns 
+			&& 	cellPosY + offsetY >= 0 && cellPosY + offsetY < board.visibleRows	
+		){
+			// Starting from x/y
+			// Move down until you hit a rock, or have reached the player's y
+			while (cellPosY + offsetY > cellPosY) {
+				if (!board.IsTraversable (cellPosX + offsetX, cellPosY + offsetY)) {
+					return false; // We hit a rock, the player wouldn't be able to move past it
+				}
+				offsetY--;
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}
+
     // tests if player is in danger zone
     private bool IsEndangered()
     {
