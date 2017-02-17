@@ -134,7 +134,7 @@ public class PlayerAgent : Agent, BoardPiece {
 		){
 			// Starting from x/y
 			// Move down until you hit a rock, or have reached the player's y
-			while (cellPosY + offsetY >= cellPosY) {
+			while (cellPosY + offsetY > cellPosY) {
 				if (!board.IsTraversable (cellPosX + offsetX, cellPosY + offsetY)) {
 					return false; // We hit a rock, the player wouldn't be able to move past it
 				}
