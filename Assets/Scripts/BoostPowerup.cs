@@ -9,7 +9,7 @@ public class BoostPowerup : Powerup, BoardPiece {
 
     }
     void Update () {
-		if (board.GetCell(player.cellPosX,player.cellPosY).type == Cell.CellType.NONE_BOOST)
+		if (board.GetCell(player.cellPosX,player.cellPosY).type == Cell.CellType.BOOST)
         {
             Debug.Log("The powerup was got");
             OnTouch();
