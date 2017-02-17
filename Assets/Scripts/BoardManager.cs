@@ -133,7 +133,6 @@ public class BoardManager : MonoBehaviour {
 		}
 		return new Cell(x, y, Cell.CellType.NONE); // We didn't actually have a cell for that location, but here is one that represents what that data would be.
 	}
-
 	public Cell ChangeCell(int x, int y, Cell.CellType newType) {
 		Cell cellToChange = GetCell (x, y);
 		if (newType == Cell.CellType.NONE) { // We don't store references to this type. So delete whatever was there
@@ -151,6 +150,7 @@ public class BoardManager : MonoBehaviour {
 		// Return the cell
 		return cellToChange;
 	}
+
 
 	// --~~== End API Functions ==~~--
 
