@@ -5,18 +5,14 @@ using UnityEngine;
 public class Cell {
 	public int x;
 	public int y;
-
-	[System.Flags] private enum CellFlags
-	{
-		INVALID 	= 0,
-		IMPASSABLE 	= 1,
-		PASSABLE 	= 2
-		// e.g. SLOW = 3
-	}
+    
 	public enum CellType {
-		NONE = CellFlags.PASSABLE, // Tiles of this type shouldn't be created. This is for specifying that in patterns
-		ROCK = CellFlags.IMPASSABLE
-		// e.g. SAND = CellFlags.PASSABLE | CellFlags.SLOW
+		NONE, // Tiles of this type shouldn't be created. This is for specifying that in patterns
+		ROCK,
+        BOOST,
+        FIST,
+        GOLD,
+        TRAP
 	}
 
 	public CellType type;
@@ -44,13 +40,16 @@ public class Cell {
 	}
 
 	public bool IsTraversable(){
-		return ((int)type & (int)CellFlags.PASSABLE) > 0; // Check passable bit
+        return type == CellType.NONE || type == CellType.BOOST || type == CellType.FIST || type == CellType.GOLD || type == CellType.TRAP;
 	}
 
 	public static string GetResourcePath(CellType type) {
 		switch (type) {
-		case CellType.ROCK:
-			return Constants.Board.ROCK_PREFAB_PATH;
+		    case CellType.ROCK:
+                    return Constants.Board.ROCK_PREFAB_PATH;
+            case CellType.BOOST:
+                    return Constants.Board.POWERUP_PREFAB_PATH;
+
 		}
 		return "";
 	}

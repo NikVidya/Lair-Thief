@@ -22,46 +22,6 @@ public class BoardAIAgent : Agent {
 		}
 	}
 
-
-	//		Psuedocode
-	//
-	//		function ValidatePathFromCell(Cell cell) {
-	//			if( cell.y == board.top ){
-	//				return true;
-	//			}
-	//			int xLeft = cell.x, xRight = cell.x;
-	//			Cell[] cells;
-	//			// Find reachable cells to the left
-	//			while( xLeft > 0 && board[xLeft][cell.y] is passable ){
-	//				cells.Add(board[xLeft])
-	//				xLeft--;
-	//			}
-	//			// Find reachable cells to the right
-	//			while( xRight < board.columns && board[xRight][cell.y] is passable ){
-	//				cells.Add(board[xRight])
-	//				xRight++;
-	//			}
-	//
-	//			// Find which cells we can move up to
-	//			Cell[] upReachCells;
-	//			for(i=0; i<cells.Count; i++){
-	//				if( board[cells[i].x][cells[i].y+1] is passable ){
-	//					upReachCells.Add(board[cells[i].x][cells[i].y+1])
-	//				}
-	//			}
-	//
-	//			if( upReachCells.Count == 0) {
-	//				// Pick a random cell from cells to clear a path from
-	//				Cell randCell = cells[Random.Range(0,cells.Count)];
-	//				board.ChangeCell(randCell.x, randCell.y+1, Passable);
-	//				upReachCells.Add(randCell);
-	//			}
-	//
-	//			for(int i=0; i<upReachCells.Count; i++){
-	//				ValidatePathFromCell(upReachCells[i]);
-	//			}
-	//		}
-
 	private bool MakeValidPath(Cell fromCell){
 		if (fromCell == null) {
 			return false; // You reached a null cell. Probably the player is above the highest cells. That should only happen during initial generation.
@@ -181,6 +141,8 @@ public class BoardAIAgent : Agent {
 			return Cell.CellType.NONE;
 		case 1:
 			return Cell.CellType.ROCK;
+        case 2:
+            return Cell.CellType.BOOST;
 		default:
 			return Cell.CellType.NONE;
 		}
