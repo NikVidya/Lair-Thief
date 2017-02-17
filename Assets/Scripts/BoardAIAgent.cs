@@ -108,7 +108,7 @@ public class BoardAIAgent : Agent {
 				subPattern = patterns[Random.Range(0, patterns.Count)];
 			}
 			pattern [x] = new List<Cell.CellType> (); // Initialize the list for this column
-			for (int y = 0; y < subPattern [subX].Count; y++) { // For each cell in this column
+			for (int y = subPattern[subX].Count-1; y >= 0; y--) { // For each cell in this column
 				pattern[x].Add( subPattern[subX][y] );
 			}
 		}
