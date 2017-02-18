@@ -145,6 +145,19 @@ public class PlayerAgent : Agent, BoardPiece {
             clickCell[1] = targetCellY;
         }
 
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            TurnEnd();
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            StartBoosting();
+        }
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            BreakBlock();
+        }
+
         if (IsReachable(clickCell[0] - cellPosX, clickCell[1] - cellPosY, activeMovementRegion) && board.IsTraversable(clickCell[0], clickCell[1]))
         {
             if (moveCoroutine != null)
