@@ -21,7 +21,17 @@ public class PlayerAgent : Agent, BoardPiece {
     public Button boostButton; // The button the player click's to enable boosting
 
     public Button breakButton; // Player clicks this to break the block ahead of them
+
+    public Text scoreText; // The UI element that display's the player's score
+
+    public float scoreMulti = 10f; // Base multiplier for the score
+    public float scoreAdvance = 0.5f; // Amount to increase the score for each screen traveled
+
     // -----------------------------------
+
+    public float currentScore; // The player's current score
+    private int rowsTraversedOnBoard; // Each board is board.visibleRows height.
+
 
 	private List<GameObject> highlights = new List<GameObject>();
 
@@ -69,7 +79,7 @@ public class PlayerAgent : Agent, BoardPiece {
 		board.RegisterPiece (this);
 	}
 
-	protected override void OnTurnStart()
+    protected override void OnTurnStart()
     {
         Debug.Log ("Player turn: Start");
 		avatar.transform.position = board.CellToWorld (cellPosX, cellPosY);
@@ -125,6 +135,19 @@ public class PlayerAgent : Agent, BoardPiece {
 			GameObject.Destroy (highlights [i]);
 		}
 		highlights.Clear();
+        // Update how far the player has traveled and add score
+        int dist = targetCellY - cellPosY;
+        rowsTraversedOnBoard += dist;
+        if(rowsTraversedOnBoard > board.visibleRows)
+        {
+            rowsTraversedOnBoard = 0; // Reset, new board
+            enemyAgent.dangerDistance++; // Enemy gets more dangerous
+            scoreMulti += scoreAdvance; // Advance the score multiplier
+        }
+        // Add score for distance travelled
+        currentScore += dist * scoreMulti;
+        scoreText.text = string.Format("Score: {0}", Mathf.RoundToInt(currentScore));
+
 		// Update my actual position
 		cellPosX = targetCellX;
 		cellPosY = targetCellY;
@@ -231,7 +254,7 @@ public class PlayerAgent : Agent, BoardPiece {
         if (CanPunch)
         {
             Debug.Log("Player just used Break Powerup and broke a block");
-            board.ChangeCell(cellPosX, cellPosY + 1, Cell.CellType.NONE);
+            board.ChangeCell(targetCellX, targetCellY + 1, Cell.CellType.NONE);
             CanPunch = false;
             breakButton.interactable = false;
             showMoveRegion();
@@ -242,5 +265,11 @@ public class PlayerAgent : Agent, BoardPiece {
 		cellPosY -= distance;
 		targetCellY -= distance;
 		avatar.transform.position = board.CellToWorld (cellPosX, cellPosY);
-	}
+    }
+
+    public void GainScore(float score)
+    {
+        currentScore += score * scoreMulti;
+        scoreText.text = string.Format("Score: {0}", Mathf.RoundToInt(currentScore));
+    }
 }

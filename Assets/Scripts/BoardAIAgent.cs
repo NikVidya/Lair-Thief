@@ -136,7 +136,7 @@ public class BoardAIAgent : Agent {
 	}
 
 	private Cell.CellType ParseTypeFromInt(int typeInt){
-		    switch (typeInt) {
+		switch (typeInt) {
 		    case 0:
 			    return Cell.CellType.NONE;
 		    case 1:
@@ -145,6 +145,8 @@ public class BoardAIAgent : Agent {
                 return Cell.CellType.BOOST;
             case 3:
                 return Cell.CellType.FIST;
+            case 4:
+                return Cell.CellType.GOLD;
 		    default:
 			    return Cell.CellType.NONE;
 		}
