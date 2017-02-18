@@ -147,6 +147,8 @@ public class BoardAIAgent : Agent {
                 return Cell.CellType.FIST;
             case 4:
                 return Cell.CellType.GOLD;
+            case 5:
+                return Cell.CellType.TRAP;
 		    default:
 			    return Cell.CellType.NONE;
 		}

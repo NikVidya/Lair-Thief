@@ -4,5 +4,6 @@
         public static string BOOST_POWERUP_PREFAB_PATH = "BoardCells/boostpowerup";
         public static string BREAKER_POWERUP_PREFAB_PATH = "BoardCells/breakerpowerup";
         public static string PICKUP_GOLD_PREFAB_PATH = "BoardCells/gold_pickup";
+        public static string TRAP_PREFAB_PATH = "BoardCells/trap";
     }
 }

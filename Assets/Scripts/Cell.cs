@@ -53,6 +53,8 @@ public class Cell {
                 return Constants.Board.BREAKER_POWERUP_PREFAB_PATH;
             case CellType.GOLD:
                 return Constants.Board.PICKUP_GOLD_PREFAB_PATH;
+            case CellType.TRAP:
+                return Constants.Board.TRAP_PREFAB_PATH;
 		}
 		return "";
 	}
