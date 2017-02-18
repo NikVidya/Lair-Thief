@@ -18,7 +18,7 @@ public class BackdropScript : MonoBehaviour, BoardPiece {
 		widthScale = Camera.main.orthographicSize * 2.0f * Camera.main.aspect / 10;
 		// Spawn some backdrops
 		for (int i = -1; i < 3; i++) {
-			AddBackdrop (i);
+			AddBackdrop ();
 		}
 	}
 
@@ -32,15 +32,22 @@ public class BackdropScript : MonoBehaviour, BoardPiece {
 				Destroy (bd);
 				i--;
 
-				AddBackdrop (backdrops.Count-1);
+				AddBackdrop();
 			}
 		}
 	}
 
-	private void AddBackdrop(int index){
+	private void AddBackdrop(){
 		Vector3 position = new Vector3 ();
 		position.x = Camera.main.transform.position.x - (Camera.main.orthographicSize * Camera.main.aspect);
-		position.y = index * backdropHeight;
+        if (backdrops.Count > 0)
+        {
+            position.y = backdrops[backdrops.Count - 1].transform.position.y + boardManager.CellToWorld(0, backdropHeight).y;
+        }
+        else
+        {
+            position.y = -boardManager.CellToWorld(0, backdropHeight).y;
+        }
 		GameObject bd = Instantiate (backgroundPrefab, position, Quaternion.identity, this.transform);
 		bd.transform.localScale = new Vector3 (widthScale, 1, 1);
 		backdrops.Add (bd);
