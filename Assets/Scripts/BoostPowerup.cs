@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class BoostPowerup : Powerup, BoardPiece {
+public class BoostPowerup : Powerup {
     void Start()
     {
 
@@ -11,21 +11,20 @@ public class BoostPowerup : Powerup, BoardPiece {
     void Update () {
 		if (board.GetCell(player.cellPosX,player.cellPosY).type == Cell.CellType.BOOST)
         {
-            Debug.Log("The powerup was got");
+            Debug.Log("Boost powerup acquired");
             OnTouch();
         }
 	}
     void OnTouch()
     {
-        // make sure to change this to add to inventory
-        player.boosted = 5;
-        // this powerup has to disappear
+        player.EnableBoosting(); // The player has obtained a boost item
+
+        // Remove the cell from the board
         board.ChangeCell(player.cellPosX, player.cellPosY, Cell.CellType.NONE);
-        
     }
 
-    public void HandleBoardAdvance(int distance)
+    public void Activate()
     {
-        throw new NotImplementedException();
+        player.StartBoosting();
     }
 }

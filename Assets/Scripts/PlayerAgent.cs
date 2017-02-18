@@ -1,14 +1,37 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerAgent : Agent, BoardPiece {
 
-	public BoardManager board;
 
-	public GameObject avatar;
+    // -----------------------------------
 
-	public GameObject movableHighlighter;
+	public BoardManager board; // The board the player is playing on
+
+	public GameObject avatar; // The visual indicator of the player's position
+
+	public GameObject movableHighlighter; // The prefab to use to indicate the player's movable region
+
+    public int boostTurns; // The number of turns a boost lasts for
+
+    public EnemyAgent enemyAgent; // The enemy the player is escaping from
+
+    public Button boostButton; // The button the player click's to enable boosting
+
+    public Button breakButton; // Player clicks this to break the block ahead of them
+
+    public Text scoreText; // The UI element that display's the player's score
+
+    public float scoreMulti = 10f; // Base multiplier for the score
+    public float scoreAdvance = 0.5f; // Amount to increase the score for each screen traveled
+
+    // -----------------------------------
+
+    public float currentScore; // The player's current score
+    private int rowsTraversedOnBoard; // Each board is board.visibleRows height.
+
 
 	private List<GameObject> highlights = new List<GameObject>();
 
@@ -22,9 +45,11 @@ public class PlayerAgent : Agent, BoardPiece {
 
     private bool[,] movementRegion;
 
-    public int danger;
+    public bool inDanger;
 
-    public int boosted;
+    public bool CanBoost = false, CanPunch = false; // Hold the state of the player's 'inventory'. Player can only hold one of each
+
+    public int boostedTurnsRemaining = 0;
 
 	// DEFINE MOVABLE AREA PATTERNS - Hardcoded = bad, but I can't think of another way to define these with Unity
 	private static bool[,] NORMAL_MOVEMENT_REGION = new bool[4,3] {
@@ -48,33 +73,50 @@ public class PlayerAgent : Agent, BoardPiece {
 		{false, true, false}
 	};
 
+    private bool[,] activeMovementRegion = NORMAL_MOVEMENT_REGION;
+
     public void Start(){
 		board.RegisterPiece (this);
 	}
 
-	protected override void OnTurnStart() {
-		Debug.Log ("Player turn: Start");
+    protected override void OnTurnStart()
+    {
+        Debug.Log ("Player turn: Start");
 		avatar.transform.position = board.CellToWorld (cellPosX, cellPosY);
 		avatar.transform.localScale = new Vector2(board.cellScale, board.cellScale);
-        movementRegion = CheckMovementRegion();
-        // Show the user what cells the player can move to
-        for (int x = cellPosX - 1; x <= cellPosX + 1; x++) {
-			for (int y = cellPosY; y < cellPosY + 3; y++) {
-				if (IsReachable (x - cellPosX, y - cellPosY, movementRegion) && board.IsTraversable(x, y) ) {
-					GameObject highlight = (GameObject)Instantiate (movableHighlighter, transform);
-					highlight.transform.position = board.CellToWorld (x, y);
-					highlight.transform.localScale = new Vector2 (board.cellScale, board.cellScale);
-					highlights.Add (highlight);
-				}
-			}
-		}
+        showMoveRegion();
 	}
 
+    private void showMoveRegion()
+    {
+        for (int i = 0; i < highlights.Count; i++)
+        {
+            GameObject.Destroy(highlights[i]);
+        }
+        highlights.Clear();
+
+        UpdateEndangered();
+        UpdateMovementType();
+        // Show the user what cells the player can move to
+        for (int x = cellPosX - 1; x <= cellPosX + 1; x++)
+        {
+            for (int y = cellPosY; y < cellPosY + 4; y++)
+            {
+                if (IsReachable(x - cellPosX, y - cellPosY, activeMovementRegion) && board.IsTraversable(x, y))
+                {
+                    GameObject highlight = (GameObject)Instantiate(movableHighlighter, transform);
+                    highlight.transform.position = board.CellToWorld(x, y);
+                    highlight.transform.localScale = new Vector2(board.cellScale, board.cellScale);
+                    highlights.Add(highlight);
+                }
+            }
+        }
+    }
+
 	protected override void OnTurnUpdate() {
-        movementRegion = CheckMovementRegion();
         if (Input.GetMouseButtonDown (0)) {
 			int[] clickCell = board.WorldToCell (Camera.main.ScreenToWorldPoint(Input.mousePosition));
-			if (IsReachable (clickCell [0] - cellPosX, clickCell [1] - cellPosY, movementRegion) && board.IsTraversable (clickCell [0], clickCell [1])) {
+			if (IsReachable (clickCell [0] - cellPosX, clickCell [1] - cellPosY, activeMovementRegion) && board.IsTraversable (clickCell [0], clickCell [1])) {
 				if (moveCoroutine != null) {
 					StopCoroutine (moveCoroutine);
 				}
@@ -93,13 +135,26 @@ public class PlayerAgent : Agent, BoardPiece {
 			GameObject.Destroy (highlights [i]);
 		}
 		highlights.Clear();
+        // Update how far the player has traveled and add score
+        int dist = targetCellY - cellPosY;
+        rowsTraversedOnBoard += dist;
+        if(rowsTraversedOnBoard > board.visibleRows)
+        {
+            rowsTraversedOnBoard = 0; // Reset, new board
+            enemyAgent.dangerDistance++; // Enemy gets more dangerous
+            scoreMulti += scoreAdvance; // Advance the score multiplier
+        }
+        // Add score for distance travelled
+        currentScore += dist * scoreMulti;
+        scoreText.text = string.Format("Score: {0}", Mathf.RoundToInt(currentScore));
+
 		// Update my actual position
 		cellPosX = targetCellX;
 		cellPosY = targetCellY;
         // iterate boosted so that powerup can run out
-        if (boosted > 0)
+        if (boostedTurnsRemaining > 0)
         {
-            boosted--;
+            boostedTurnsRemaining--;
         }
 	}
 
@@ -142,45 +197,79 @@ public class PlayerAgent : Agent, BoardPiece {
 	}
 
     // tests if player is in danger zone
-    public bool IsEndangered(int dangerZone)
+    public void UpdateEndangered()
     {
-        if (cellPosY < dangerZone) {
-            return true;
-        }
-        return false;
+        inDanger = cellPosY < enemyAgent.dangerDistance;
     }
-    // changes the movement region based on certain factors like isEndangered or boosted
-    public bool[,] CheckMovementRegion()
+
+    public void UpdateMovementType()
     {
-        bool[,] region;
-        if (IsEndangered(danger))
+        if (cellPosY < enemyAgent.dangerDistance )
         {
-            if (boosted > 0)
+            if (boostedTurnsRemaining > 0)
             {
-                region = BOOSTED_ENDANGERED_MOVEMENT_REGION;
+                activeMovementRegion = BOOSTED_ENDANGERED_MOVEMENT_REGION;
             }
             else
             {
-                region = ENDANGERED_MOVEMENT_REGION;
+                activeMovementRegion = ENDANGERED_MOVEMENT_REGION;
             }
-        }
-        else
+        }else
         {
-            if (boosted > 0)
+            if (boostedTurnsRemaining > 0)
             {
-                region = BOOSTED_MOVEMENT_REGION;
-            }
-            else
+                activeMovementRegion = BOOSTED_MOVEMENT_REGION;
+            }else
             {
-                region = NORMAL_MOVEMENT_REGION;
+                activeMovementRegion = NORMAL_MOVEMENT_REGION;
             }
         }
-        return region;
+    }
+
+    public void EnableBoosting()
+    {
+        CanBoost = true;
+        boostButton.interactable = true;
+    }
+    public void EnableBreaking()
+    {
+        CanPunch = true;
+        breakButton.interactable = true;
+    }
+
+    public void StartBoosting()
+    {
+        if (CanBoost)
+        {
+            Debug.Log("Player started thier boost");
+            activeMovementRegion = BOOSTED_MOVEMENT_REGION;
+            boostedTurnsRemaining = boostTurns;
+            CanBoost = false; // Player consumed the boost item
+            boostButton.interactable = false;
+            showMoveRegion();
+        }
+    }
+    public void BreakBlock()
+    {
+        if (CanPunch)
+        {
+            Debug.Log("Player just used Break Powerup and broke a block");
+            board.ChangeCell(targetCellX, targetCellY + 1, Cell.CellType.NONE);
+            CanPunch = false;
+            breakButton.interactable = false;
+            showMoveRegion();
+        }
     }
 
     public void HandleBoardAdvance(int distance){
 		cellPosY -= distance;
 		targetCellY -= distance;
 		avatar.transform.position = board.CellToWorld (cellPosX, cellPosY);
-	}
+    }
+
+    public void GainScore(float score)
+    {
+        currentScore += score * scoreMulti;
+        scoreText.text = string.Format("Score: {0}", Mathf.RoundToInt(currentScore));
+    }
 }

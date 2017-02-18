@@ -46,10 +46,15 @@ public class Cell {
 	public static string GetResourcePath(CellType type) {
 		switch (type) {
 		    case CellType.ROCK:
-                    return Constants.Board.ROCK_PREFAB_PATH;
+                return Constants.Board.ROCK_PREFAB_PATH;
             case CellType.BOOST:
-                    return Constants.Board.POWERUP_PREFAB_PATH;
-
+                return Constants.Board.BOOST_POWERUP_PREFAB_PATH;
+            case CellType.FIST:
+                return Constants.Board.BREAKER_POWERUP_PREFAB_PATH;
+            case CellType.GOLD:
+                return Constants.Board.PICKUP_GOLD_PREFAB_PATH;
+            case CellType.TRAP:
+                return Constants.Board.TRAP_PREFAB_PATH;
 		}
 		return "";
 	}

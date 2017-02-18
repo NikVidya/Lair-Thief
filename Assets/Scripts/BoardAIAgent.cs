@@ -108,7 +108,7 @@ public class BoardAIAgent : Agent {
 				subPattern = patterns[Random.Range(0, patterns.Count)];
 			}
 			pattern [x] = new List<Cell.CellType> (); // Initialize the list for this column
-			for (int y = 0; y < subPattern [subX].Count; y++) { // For each cell in this column
+			for (int y = subPattern[subX].Count-1; y >= 0; y--) { // For each cell in this column
 				pattern[x].Add( subPattern[subX][y] );
 			}
 		}
@@ -137,14 +137,20 @@ public class BoardAIAgent : Agent {
 
 	private Cell.CellType ParseTypeFromInt(int typeInt){
 		switch (typeInt) {
-		case 0:
-			return Cell.CellType.NONE;
-		case 1:
-			return Cell.CellType.ROCK;
-        case 2:
-            return Cell.CellType.BOOST;
-		default:
-			return Cell.CellType.NONE;
+		    case 0:
+			    return Cell.CellType.NONE;
+		    case 1:
+			    return Cell.CellType.ROCK;
+            case 2:
+                return Cell.CellType.BOOST;
+            case 3:
+                return Cell.CellType.FIST;
+            case 4:
+                return Cell.CellType.GOLD;
+            case 5:
+                return Cell.CellType.TRAP;
+		    default:
+			    return Cell.CellType.NONE;
 		}
 	}
 }
