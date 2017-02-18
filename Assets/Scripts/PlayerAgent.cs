@@ -113,20 +113,80 @@ public class PlayerAgent : Agent, BoardPiece {
         }
     }
 
-	protected override void OnTurnUpdate() {
-        if (Input.GetMouseButtonDown (0)) {
-			int[] clickCell = board.WorldToCell (Camera.main.ScreenToWorldPoint(Input.mousePosition));
-			if (IsReachable (clickCell [0] - cellPosX, clickCell [1] - cellPosY, activeMovementRegion) && board.IsTraversable (clickCell [0], clickCell [1])) {
-				if (moveCoroutine != null) {
-					StopCoroutine (moveCoroutine);
-				}
-				moveCoroutine = MoveAvatarTo (board.CellToWorld (clickCell [0], clickCell [1]), 1f);
-				StartCoroutine (moveCoroutine);
-				targetCellX = clickCell [0];
-				targetCellY = clickCell [1];
-			}
-		}
-	}
+    protected override void OnTurnUpdate()
+    {
+        int[] clickCell;
+        if (Input.GetMouseButtonDown(0))
+        {
+            clickCell = board.WorldToCell(Camera.main.ScreenToWorldPoint(Input.mousePosition));
+        }
+        else
+        {
+            clickCell = new int[2];
+        }
+        if (Input.GetKeyDown(KeyCode.W))
+        {
+            clickCell[0] = targetCellX;
+            clickCell[1] = targetCellY + 1;
+        }
+        else if (Input.GetKeyDown(KeyCode.S))
+        {
+            clickCell[0] = targetCellX;
+            clickCell[1] = targetCellY - 1;
+        }
+        else if (Input.GetKeyDown(KeyCode.D))
+        {
+            clickCell[0] = targetCellX + 1;
+            clickCell[1] = targetCellY;
+        }
+        else if (Input.GetKeyDown(KeyCode.A))
+        {
+            clickCell[0] = targetCellX - 1;
+            clickCell[1] = targetCellY;
+        }
+
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            TurnEnd();
+        }
+        if (Input.GetKeyDown(KeyCode.E))
+        {
+            StartBoosting();
+        }
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            BreakBlock();
+        }
+
+        if (IsReachable(clickCell[0] - cellPosX, clickCell[1] - cellPosY, activeMovementRegion) && board.IsTraversable(clickCell[0], clickCell[1]))
+        {
+            if (moveCoroutine != null)
+            {
+                StopCoroutine(moveCoroutine);
+            }
+            moveCoroutine = MoveAvatarTo(board.CellToWorld(clickCell[0], clickCell[1]), 1f);
+            StartCoroutine(moveCoroutine);
+            targetCellX = clickCell[0];
+            targetCellY = clickCell[1];
+        }
+    }
+
+
+    private void MoveAvatarByAmount(int xDirection, int yDirection)
+    {
+        if (IsReachable(targetCellX + xDirection - cellPosX, targetCellY + yDirection - cellPosY, activeMovementRegion) && board.IsTraversable(targetCellX + xDirection, targetCellY + yDirection))
+        {
+            if (moveCoroutine != null)
+            {
+                StopCoroutine(moveCoroutine);
+            }
+            moveCoroutine = MoveAvatarTo(board.CellToWorld(targetCellX + xDirection, targetCellY + yDirection), 1f);
+            StartCoroutine(moveCoroutine);
+            targetCellX = targetCellX + xDirection;
+            targetCellY = targetCellY + yDirection;
+            Debug.Log("should have moved the avatar");
+        }
+    }
 
 	protected override void OnTurnEnd() {
 		Debug.Log ("Player Turn: End");
