@@ -51,6 +51,8 @@ public class Cell {
                     return Constants.Board.BOOST_POWERUP_PREFAB_PATH;
             case CellType.FIST:
                 return Constants.Board.BREAKER_POWERUP_PREFAB_PATH;
+            case CellType.TRAP:
+                return Constants.Board.TRAP_PREFAB_PATH;
 
 		}
 		return "";
