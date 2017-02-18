@@ -6,6 +6,9 @@ public class EnemyAgent : Agent {
 
 	public BoardManager board;
     public PlayerAgent player;
+
+    public GameObject dangerZone; // The vizualization of the danger zone
+
     private bool playerTrapped = false;
     public int dangerDistance = 3; // The distance from the enemy to be considered endangered
 
@@ -18,6 +21,9 @@ public class EnemyAgent : Agent {
         else {
             board.AdvanceBoard(1);
         }
+        Vector2 dangerZonePos = board.CellToWorld(0, dangerDistance);
+        dangerZonePos.x = Camera.main.transform.position.x;
+        dangerZone.transform.position = dangerZonePos;
 	}
 
 	protected override void OnTurnUpdate(){
@@ -31,4 +37,5 @@ public class EnemyAgent : Agent {
     {
         playerTrapped = true;
     }
+    
 }
