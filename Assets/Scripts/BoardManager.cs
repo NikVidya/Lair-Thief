@@ -157,6 +157,7 @@ public class BoardManager : MonoBehaviour {
 	// --~~== START ==~~--
 	public void Start(){
 		// Initialize board parameters
+		Score.finalScore = 0;
 		cellScale = 1; //(Camera.main.orthographicSize * 2.0f * Camera.main.aspect) / (float)columns; // Base the cell scale off of the horizontal resoulution of the camera, and the number of columns
 		visibleRows = Mathf.CeilToInt( (Camera.main.orthographicSize * 2.0f) / cellScale) - rowOffset; // Determine how many rows are visible to the player. (Max rows visible - offset)
 		camOrigin = cam.transform.position;

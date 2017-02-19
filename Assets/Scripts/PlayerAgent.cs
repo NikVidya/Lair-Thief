@@ -13,6 +13,7 @@ public class PlayerAgent : Agent, BoardPiece {
 	public GameObject avatar; // The visual indicator of the player's position
 
 	public GameObject movableHighlighter; // The prefab to use to indicate the player's movable region
+	
 
     public int boostTurns; // The number of turns a boost lasts for
 
@@ -209,6 +210,7 @@ public class PlayerAgent : Agent, BoardPiece {
         }
         // Add score for distance travelled
         currentScore += dist * scoreMulti;
+		Score.finalScore = currentScore;
         scoreText.text = string.Format("Score: {0}", Mathf.RoundToInt(currentScore));
 
 		// Update my actual position
