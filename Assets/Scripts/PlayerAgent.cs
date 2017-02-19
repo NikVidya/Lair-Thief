@@ -81,6 +81,9 @@ public class PlayerAgent : Agent, BoardPiece {
 
     protected override void OnTurnStart()
     {
+		if (cellPosY < 0){
+			Application.LoadLevel("GameOver");
+		}
         Debug.Log ("Player turn: Start");
 		avatar.transform.position = board.CellToWorld (cellPosX, cellPosY);
 		avatar.transform.localScale = new Vector2(board.cellScale, board.cellScale);
