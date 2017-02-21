@@ -17,6 +17,7 @@ public class GoldPowerup : Powerup {
 
     void OnTouch()
     {
+        Debug.Log("Give player score!");
         player.GainScore(scorePerPickup);
     }
 }

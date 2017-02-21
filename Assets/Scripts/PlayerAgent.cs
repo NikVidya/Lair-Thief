@@ -13,6 +13,7 @@ public class PlayerAgent : Agent, BoardPiece {
 	public GameObject avatar; // The visual indicator of the player's position
 
 	public GameObject movableHighlighter; // The prefab to use to indicate the player's movable region
+	
 
     public int boostTurns; // The number of turns a boost lasts for
 
@@ -23,6 +24,8 @@ public class PlayerAgent : Agent, BoardPiece {
     public Button breakButton; // Player clicks this to break the block ahead of them
 
     public Text scoreText; // The UI element that display's the player's score
+
+    public Score scoreManager;
 
     public float scoreMulti = 10f; // Base multiplier for the score
     public float scoreAdvance = 0.5f; // Amount to increase the score for each screen traveled
@@ -81,6 +84,9 @@ public class PlayerAgent : Agent, BoardPiece {
 
     protected override void OnTurnStart()
     {
+		if (cellPosY < 0){
+			Application.LoadLevel("GameOver");
+		}
         Debug.Log ("Player turn: Start");
 		avatar.transform.position = board.CellToWorld (cellPosX, cellPosY);
 		avatar.transform.localScale = new Vector2(board.cellScale, board.cellScale);
@@ -205,8 +211,7 @@ public class PlayerAgent : Agent, BoardPiece {
             scoreMulti += scoreAdvance; // Advance the score multiplier
         }
         // Add score for distance travelled
-        currentScore += dist * scoreMulti;
-        scoreText.text = string.Format("Score: {0}", Mathf.RoundToInt(currentScore));
+        scoreManager.GainScore(dist);
 
 		// Update my actual position
 		cellPosX = targetCellX;
@@ -329,7 +334,6 @@ public class PlayerAgent : Agent, BoardPiece {
 
     public void GainScore(float score)
     {
-        currentScore += score * scoreMulti;
-        scoreText.text = string.Format("Score: {0}", Mathf.RoundToInt(currentScore));
+        scoreManager.GainScore(score);
     }
 }

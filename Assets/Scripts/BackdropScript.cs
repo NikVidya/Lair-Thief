@@ -6,7 +6,7 @@ public class BackdropScript : MonoBehaviour, BoardPiece {
 
 	public GameObject backgroundPrefab;
 	public BoardManager boardManager;
-	public int backdropHeight = 10; // In units
+	public int backdropHeight = 4; // In units
 
 	private float widthScale;
 
@@ -39,7 +39,7 @@ public class BackdropScript : MonoBehaviour, BoardPiece {
 
 	private void AddBackdrop(){
 		Vector3 position = new Vector3 ();
-		position.x = Camera.main.transform.position.x - (Camera.main.orthographicSize * Camera.main.aspect);
+		position.x = this.transform.position.x - (Camera.main.orthographicSize * Camera.main.aspect);
         if (backdrops.Count > 0)
         {
             position.y = backdrops[backdrops.Count - 1].transform.position.y + boardManager.CellToWorld(0, backdropHeight).y;
