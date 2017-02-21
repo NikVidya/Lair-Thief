@@ -25,6 +25,8 @@ public class PlayerAgent : Agent, BoardPiece {
 
     public Text scoreText; // The UI element that display's the player's score
 
+    public Score scoreManager;
+
     public float scoreMulti = 10f; // Base multiplier for the score
     public float scoreAdvance = 0.5f; // Amount to increase the score for each screen traveled
 
@@ -209,9 +211,7 @@ public class PlayerAgent : Agent, BoardPiece {
             scoreMulti += scoreAdvance; // Advance the score multiplier
         }
         // Add score for distance travelled
-        currentScore += dist * scoreMulti;
-		Score.finalScore = currentScore;
-        scoreText.text = string.Format("Score: {0}", Mathf.RoundToInt(currentScore));
+        scoreManager.GainScore(dist);
 
 		// Update my actual position
 		cellPosX = targetCellX;
@@ -334,7 +334,6 @@ public class PlayerAgent : Agent, BoardPiece {
 
     public void GainScore(float score)
     {
-        currentScore += score * scoreMulti;
-        scoreText.text = string.Format("Score: {0}", Mathf.RoundToInt(currentScore));
+        scoreManager.GainScore(score);
     }
 }
